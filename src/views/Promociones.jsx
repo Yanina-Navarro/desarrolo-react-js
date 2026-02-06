@@ -1,17 +1,161 @@
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
+import { useState, useEffect } from "react";
+import '../styles/promociones.css';
+import { getAllPromotions as getAllPromotionsFirebase, addNewPromotions as addNewPromotionsFirebase, updatePromotions as updatePromotionsFirebase, deletePromotions as deletePromotionsFirebase } from "../services/apiFirebase.js";
+
+
 
 const Promociones = () => {
+  const [promotions, setPromotions] = useState([]);
+  const [editingPromotions, setEditingPromotions] = useState(null)
+  const [formData, setFormData] = useState({
+    name: "",
+    refunds: "",
+    image: "",
+    description: ""
+  })
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData({ ...formData, [name]: value })
+  }
+
+  const fetchingData = async () => {
+    const promotions = await getAllPromotionsFirebase()
+    setPromotions(promotions)
+  }
+
+  useEffect(() => {
+    fetchingData()
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (editingPromotions) {
+      const res = await updatePromotionsFirebase(editingPromotions, formData)
+      const updatedPromotions = promotions.map(p =>
+        p.id === editingPromotions ? res : p
+      )
+      setPromotions(updatedPromotions)
+      setEditingPromotions(null)
+    } else {
+      const addedPromotions = await addNewPromotionsFirebase({
+        name: formData.name,
+        refunds: Number(formData.refunds),
+        image: formData.image,
+        description: formData.description
+      })
+      setPromotions([addedPromotions, ...promotions])
+    }
+
+    setFormData({
+      name: "",
+      refunds: "",
+      image: "",
+      description: ""
+    })
+  }
+
+  const handleUpdatePromotions = (promotions) => {
+    setFormData({
+      name: promotions.name,
+      refunds: promotions.refunds,
+      image: promotions.image,
+      description: promotions.description
+    })
+    setEditingPromotions(promotions.id)
+  }
+
+  const handleDeletePromotions = async (id) => {
+    try {
+      if (!confirm("¿Estás seguro que deseas borrar esta promoción?")) {
+        return
+      }
+
+      const idDeletedPromotions = await deletePromotionsFirebase(id)
+      alert(`Promoción id: ${idDeletedPromotions} borrada con éxito`)
+      const filteredPromotions = promotions.filter(p => p.id !== id)
+      setPromotions(filteredPromotions)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   return (
     <>
       <Header />
       <main>
-        <h1>Historia</h1>
-        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Molestiae, odit, ut fugiat aspernatur atque, ipsam eaque nobis quidem doloribus quis placeat laboriosam perferendis! Non alias, ea doloremque facere culpa perspiciatis dolore iusto eos voluptatem laudantium unde ipsa aspernatur rem, ratione laboriosam facilis ipsam? Facilis cupiditate dignissimos eos modi ullam nobis laudantium expedita perferendis a, exercitationem explicabo magni, animi deleniti dolorem. Amet maiores debitis eius modi aperiam illum non officiis praesentium aliquid officia accusantium repellendus eum numquam ad et quam dolorum, recusandae dolorem suscipit sed doloribus. Consequuntur pariatur quaerat nam laborum excepturi quas quae, deleniti necessitatibus doloribus iusto modi consectetur sed nobis quod natus ipsa sint reiciendis cumque culpa temporibus esse animi molestias odit? Omnis asperiores labore unde ipsam. Sit mollitia adipisci modi minus sed similique possimus neque, velit deleniti, amet dicta iure aliquid odit. Numquam facilis possimus sapiente amet voluptatum fuga deleniti earum animi. Molestias accusamus totam unde, neque, nulla corrupti maxime laudantium consequatur veritatis illo doloremque quisquam iste architecto. Iste, atque voluptate voluptatum temporibus architecto vitae, praesentium sequi quas perferendis delectus provident reiciendis repudiandae recusandae ab quis tenetur dolorem nostrum, et iusto ratione. Delectus quod beatae corporis, dignissimos iste assumenda laborum consequatur minus laboriosam suscipit voluptates distinctio reprehenderit, tenetur iure nisi vero ut modi culpa! Tempora velit in qui, tenetur perspiciatis neque, saepe natus laboriosam cupiditate doloremque est voluptate quos. Beatae fugiat inventore recusandae id. Labore molestias ratione voluptatum accusantium dignissimos alias amet enim vero, eligendi earum ipsam veniam itaque qui mollitia dolores voluptas repellendus tenetur ex illo dolorum magnam quae cumque. Earum quam placeat architecto ratione odio quisquam dolores deleniti, aut vel nisi sequi animi a asperiores excepturi maxime quasi sit voluptatum at officiis incidunt officia alias tempora fuga autem! Natus vel omnis illum veritatis odio atque similique dolore illo, at eveniet, voluptate tenetur quae soluta maiores dicta qui quisquam quos fugit ad adipisci praesentium facere dignissimos minus deserunt. Maxime similique repudiandae laborum itaque expedita magnam, perspiciatis ratione tenetur voluptatem! Dolorem minus veritatis repellat error facilis mollitia voluptatem molestiae, saepe maxime, doloremque ipsum non illo. Doloremque, voluptas pariatur. Accusamus, rerum? Omnis libero voluptatibus consectetur dolorum nisi, laboriosam minima a sunt dicta quo laborum, iste iusto modi sapiente error iure dolore eligendi. Id, accusamus laudantium qui ratione deserunt fuga totam possimus repudiandae, quae eaque dolorem vitae iste ipsa et repellendus sequi autem labore hic in aspernatur porro! Maxime laborum nulla, hic debitis quas quis mollitia expedita rem esse cum neque tenetur excepturi aut harum animi facere cumque quia, praesentium enim modi culpa voluptates ipsam dignissimos dicta? Dolore provident voluptatem voluptates repellendus inventore architecto, eos distinctio asperiores omnis consectetur excepturi deleniti ullam corporis non maiores cumque perferendis, odit voluptate! Perferendis atque doloribus officia ea, praesentium nobis tempore adipisci autem ipsam provident sed quas maxime repellat neque! Neque pariatur, rerum cumque fuga placeat autem dicta? Facilis, nesciunt molestiae, praesentium aliquam quidem et suscipit libero iure id tenetur nihil ipsum? Amet, non ipsum quos dolorem suscipit laboriosam incidunt unde et, vitae tempora vel nihil deserunt nulla esse similique distinctio quis hic velit quidem quo ipsa repellat commodi molestias? Magnam, aspernatur quis. Esse quibusdam cupiditate maiores dolore atque ea, perferendis praesentium quos eligendi sint minus harum odio aliquid. Reprehenderit illum repellat aperiam blanditiis quibusdam quam quo hic obcaecati, omnis voluptates nemo. Veniam nulla, molestias cupiditate officia ipsam pariatur animi laborum tempora cum rerum, ea, in aut? Optio quisquam voluptatem quo hic illo obcaecati ducimus corrupti sequi ullam velit at ab facere possimus a sed commodi tempora, dolorum libero quibusdam repellat? Porro voluptatum temporibus hic aliquam culpa! Porro soluta vel ea quia ipsum animi qui, dolores maxime quo aliquam doloribus reprehenderit. Est laboriosam vitae aliquid excepturi fuga harum ab delectus facere porro, esse ut! Nesciunt facere quidem eaque veniam recusandae dolores aperiam quisquam! Tempore eum delectus dolorum ab quaerat libero debitis placeat earum et ex? Doloremque quis quia ipsa eaque repellendus praesentium corporis minima libero, placeat qui magnam eius maiores minus sunt, dolore veniam voluptas nemo voluptate molestias saepe aspernatur voluptatibus obcaecati quam nesciunt! Consectetur, facere nam qui corporis magnam adipisci tempora? Deserunt perspiciatis, veniam non accusamus tempora adipisci, totam a eligendi aspernatur eos eius voluptatum error deleniti ipsum. Quos consectetur doloribus laborum inventore quisquam iusto? Voluptate saepe corrupti consequatur maxime tempore sunt ea, quaerat minima atque fugit eos, autem quos, recusandae animi ad voluptas eum aliquid nobis. Quasi temporibus nulla, dolorum architecto cum est consectetur totam accusantium expedita. Temporibus eligendi earum incidunt adipisci numquam quae delectus qui reiciendis asperiores ab officia minima a inventore, iusto voluptas accusamus! Laboriosam harum quae adipisci, aperiam blanditiis quo dolorum expedita ipsum velit, natus perspiciatis excepturi recusandae necessitatibus. Neque blanditiis officiis eius nesciunt exercitationem, ut culpa dolore similique laborum itaque voluptatum magnam, explicabo, doloribus numquam ad eum? Magnam voluptatibus autem eaque est repudiandae molestias? Iste assumenda voluptas ipsum doloremque itaque cumque dolorem soluta magnam quam ducimus vel perferendis velit iure possimus maiores, quis iusto sed quod! Minima, dolorem labore maxime vel voluptatibus qui facilis voluptas excepturi porro perferendis sed quam rerum neque sapiente soluta tenetur quod expedita enim aut delectus eius consequatur deleniti. Dolore, sint natus sed et dignissimos aliquam reiciendis ratione consequatur dolor nobis, facilis inventore, illum vitae quos alias reprehenderit quia eveniet ipsa. Sapiente, qui. Nobis consectetur molestiae dolorem non et blanditiis maiores minima, ratione cum, fugit sint iure mollitia adipisci hic atque veritatis provident molestias esse amet saepe nihil, quam sit id. Distinctio dolores voluptate repellendus dolorum voluptatum, ut nulla quisquam unde enim, quas placeat. Quia mollitia saepe dolore consequatur blanditiis distinctio nulla, officiis omnis quae beatae, dignissimos ut nihil! Assumenda rem excepturi quo amet non. Voluptatem nesciunt, nostrum at reprehenderit maiores sint similique voluptas ipsa nulla expedita error autem repellendus aperiam quibusdam recusandae, debitis quaerat illo quo! Quae dolor adipisci perspiciatis sit. Repellendus neque voluptatum dolor provident rerum illum dolores aut debitis minus. Ipsam porro illum reprehenderit doloribus laborum atque enim molestias, vel magnam id expedita odio ducimus excepturi ex ipsa corporis eum hic tempora fugit quas dolores et omnis? Vel molestiae velit molestias, provident aliquam totam accusantium quidem delectus facere dolore, libero culpa.</p>
+        <section>
+          <h2>¡Ofertas Imperdibles!</h2>
+          <p>
+Descubrí las mejores promociones en locales de comida, supermercados, farmacias y muchas otras categorías. En Club de Promos juntamos todas las ofertas que valen la pena, para que ahorres fácil y rápido, sin tener que buscar en mil lugares.          </p>
+        </section>
+        <section>
+          <h3>Agregar/ Actualizar Promoción</h3>
+          <form onSubmit={handleSubmit}>
+            <input
+              name="name"
+              type="text"
+              placeholder="Titulo"
+              required
+              value={formData.name}
+              onChange={handleChange}
+            />
+
+            <input
+              name="refunds"
+              type="number"
+              placeholder="Reintegro"
+              required
+              value={formData.refunds}
+              onChange={handleChange}
+            />
+
+            <input
+              name="image"
+              type="text"
+              placeholder="URL image"
+              required
+              value={formData.image}
+              onChange={handleChange}
+            />
+
+            <textarea
+              name="description"
+              placeholder="Descripción"
+              required
+              value={formData.description}
+              onChange={handleChange}
+            >
+            </textarea>
+            <button>{editingPromotions ? "Actualizar" : "Agregar"}</button>
+          </form>
+        </section>
+        <section className="promotions">
+          <h2>Nuestras Promociones</h2>
+          <div className="promotions-list">
+            {promotions.map((promotions) => (
+              <div key={promotions.id}>
+                <img src={promotions.image} alt="" />
+                <h4>{promotions.name}</h4>
+                <p>{promotions.description}</p>
+                <div className="buy">
+                  <p>Tope Reintegro ${promotions.refunds}</p>
+                  <button>Comprar</button>
+                </div>
+                <div>
+                  <button onClick={() => handleUpdatePromotions(promotions)}>Actualizar</button>
+                  <button onClick={() => handleDeletePromotions(promotions.id)}>Borrar</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
       <Footer />
     </>
-  )
-}
+  );
+};
 
 export { Promociones }

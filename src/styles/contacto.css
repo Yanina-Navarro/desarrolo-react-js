@@ -1,0 +1,18 @@
+.contacto {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 1rem;
+
+}
+
+.contacto div {
+    width: 100%;
+}
+
+.datos p {
+    font-size: 14px;
+}
+
+.datos ul li {
+    font-size: 13px;
+}
