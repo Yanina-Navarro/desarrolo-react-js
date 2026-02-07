@@ -17,6 +17,7 @@ const addNewPromotions = async (promotions) => {
   const docRef = await addDoc(promotionsCollection, promotions)
   return {
     id: docRef.id,
+    userId: useId,
     ...promotions
   }
 }

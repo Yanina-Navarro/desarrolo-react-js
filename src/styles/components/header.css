@@ -16,11 +16,11 @@ header h1 {
 }
 
 header img {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid white;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid white;
 }
 
 nav {
@@ -55,4 +55,10 @@ nav ul li a:hover {
 nav ul li a.activo {
     background-color: #1212d6;
     color: white;
+}
+
+button{
+    background-color: #8f8fed;
+        display: flex;
+
 }

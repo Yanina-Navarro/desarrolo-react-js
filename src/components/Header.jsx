@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
+    const { logout, user } = useAuth();
 
     return (
         <>
@@ -12,11 +14,20 @@ const Header = () => {
                 <nav>
                     <div>
                         <ul>
-                            <li><NavLink to="/" className={({ isActive }) => isActive ? "activo" : undefined}>Home</NavLink > </li>
+                            {
+                                user && <li><NavLink to="/" className={({ isActive }) => isActive ? "activo" : undefined}>Home</NavLink > </li>
+                            }
                             <li><NavLink to="/nosotros" className={({ isActive }) => isActive ? "activo" : undefined}>Nosotros</NavLink > </li>
-                            <li><NavLink to="/promociones" className={({ isActive }) => isActive ? "activo" : undefined}>Promociones</NavLink > </li>
-                            <li><NavLink to="/contacto" className={({ isActive }) => isActive ? "activo" : undefined}>Contacto</NavLink ></li>
+                            {
+                                !user && <>
+                                    <li><NavLink to="/registro" className={({ isActive }) => isActive ? "activo" : undefined}>Registrate</NavLink > </li>
+                                    <li><NavLink to="/login" className={({ isActive }) => isActive ? "activo" : undefined}>Ingresar</NavLink > </li>
+                                </>
+                            }
                         </ul>
+                        {
+                            user && <button onClick={logout}>Cerrar Sesión</button>
+                        }
                     </div>
                 </nav>
             </header>
